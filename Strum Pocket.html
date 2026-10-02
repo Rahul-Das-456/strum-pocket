@@ -181,12 +181,16 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px;margin:0}
 .sheet .sec:first-child{margin-top:0}
 .sheet .ln{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 4px;margin:0 0 8px}
 .sheet .gap{height:6px}
-.sg{display:inline-flex;flex-direction:column;align-items:flex-start;padding:4px 7px;border-radius:10px;white-space:pre-wrap;transition:background .1s}
-.sg .ch{font:700 15px/1.2 var(--font-display);color:var(--ink-soft);min-height:19px}
-.sg .ly{font:500 17px/1.3 var(--font-body);color:var(--ink);min-height:22px;min-width:1.4em}
-.sg.nx{box-shadow:inset 0 0 0 2px var(--line)}
-.sg.on{background:var(--on)}
-.sg.on .ch,.sg.on .ly{color:var(--on-ink)}
+.sheet .ln{border-left:3px solid transparent;padding-left:6px;margin-left:-9px}
+.sheet .ln.cur{border-left-color:var(--ink)}
+.sg{display:inline-flex;flex-direction:column;align-items:flex-start;padding:4px 7px;white-space:pre-wrap}
+.sg .ch{font:700 15px/1.2 var(--font-display);color:var(--ink-soft);min-height:19px;padding:0 6px;margin-left:-6px;border-radius:8px}
+.sg.on .ch{background:var(--on);color:var(--on-ink)}
+.sg.nx .ch{box-shadow:inset 0 0 0 2px var(--line)}
+.sg .ly{font:500 17px/1.35 var(--font-body);color:var(--ink);min-height:22px;min-width:1.4em}
+.w{padding:1px 3px;margin:0 -3px;border-radius:6px}
+.w.done{opacity:.5}
+.w.now{background:var(--on);color:var(--on-ink);opacity:1}
 .sheet .empty{margin:0;color:var(--ink-soft)}
 textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:14px;padding:12px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;overflow:auto}
 .btnrow{display:flex;flex-wrap:wrap;gap:8px}
@@ -279,7 +283,15 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
         <button type="button" role="radio" data-v="4">4 bars</button>
       </div>
     </div>
-    <p class="help">The highlight moves on every chord change, counted from the end of the count-in. The Yellow skeleton has chords only, because the lyrics are not included here. Open the tab page, copy the chords-and-lyrics block, and paste it over this to see each lyric light up with its chord. The chord lengths in the skeleton are my estimates, so adjust them with C|8 style numbers.</p>
+    <div class="field"><span id="lblLineLen">Lyric line length</span>
+      <div class="seg" id="segLineLen" role="radiogroup" aria-labelledby="lblLineLen">
+        <button type="button" role="radio" data-v="1">1 bar</button>
+        <button type="button" role="radio" data-v="2">2 bars</button>
+        <button type="button" role="radio" data-v="4">4 bars</button>
+      </div>
+    </div>
+    <label class="field"><span>Shift lyrics <output id="shiftVal"></output></span><input type="range" id="shift" min="-2" max="2" step="0.25"></label>
+    <p class="help">Words light up one by one across each line, and a chord label lights up when it changes. Everything is counted in beats, so it follows any tempo. Each lyric line is spread over the line length you pick, and 2 bars is a good start for Yellow. I can't hear the recording, so the timing is an estimate: use Shift lyrics if the singing comes in earlier or later than the highlight. The Yellow skeleton has chords only, because the lyrics are not included here.</p>
   </section>
 
   <section class="pocket" aria-labelledby="pocketTitle">
@@ -369,7 +381,7 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
     </details>
   </section>
   <p class="note" id="install" hidden>To install: in Safari tap the Share button, then Add to Home Screen. On Android Chrome, open the menu and tap Install app.</p>
-  <p class="note" id="ver">Version 7: click-proof strum detection</p>
+  <p class="note" id="ver">Version 8: click-proof strum detection</p>
 </main>
 
 <script>
@@ -387,7 +399,7 @@ var KEY='strumpocket.v3';
 
 /* ---------- state ---------- */
 var YELLOW_SKELETON=['[Intro]','C|4 G|4 F|4 C|4','C|4 G|4 F|4 C|4','','[Verse]','C|8 G|8 F|16','C|8 G|8 F|16','C|8 G|8 F|16','C|8','','[Chorus]','F|4 Am|4 G|8','F|4 Am|4 G|8','F|4 Am|4 G|8','F|16','','[Interlude]','C|4 G|4 F|4 C|4','','[Verse 2]','C|8 G|8 F|16','C|8 G|8 F|16','C|8','','[Chorus]','F|4 Am|4 G|8','F|4 Am|4 G|8','F|4 Am|4 G|8','F|16','','[Interlude]','C|4 G|4 F|4 C|4','','[Ending]','C|8 G|8 F|8 C|8 G|8 F|8','','[Outro]','C|8 Gm|8 F|8'].join('\n');
-var S={songText:YELLOW_SKELETON,chordBars:2,bpm:90,beats:4,sub:2,patterns:{},listen:'mic',clickVol:0.7,clickOff:false,guide:false,sens:0.7,latency:60,calibrated:false,clickPeak:0,output:'headphones'};
+var S={songText:YELLOW_SKELETON,chordBars:1,lineBars:2,shift:0,bpm:90,beats:4,sub:2,patterns:{},listen:'mic',clickVol:0.7,clickOff:false,guide:false,sens:0.7,latency:60,calibrated:false,clickPeak:0,output:'headphones'};
 try{var saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object')Object.assign(S,saved);}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
@@ -733,28 +745,31 @@ function parseSong(text){
 /* Yellow: the chord changes by lyric-line number (1 to 37). It holds chords only. Each entry is [chord, word index in the line, beats]. */
 var YP=[
  '#Intro','=C|4 G|4 F|4 C|4','=C|4 G|4 F|4 C|4','','#Verse',
- [1,['C',0,8]],[2,['G',0,8]],[3,['F',0,16]],[4],[5,['C',0,8]],[6,['G',0,8]],[7,['F',0,16]],[8],[9,['C',0,8],['G',5,8]],[10,['F',0,16]],[11],'=C|8','',
+ [1,['C',0]],[2,['G',5]],[3,['F',-1]],[4],[5,['C',0]],[6,['G',5]],[7,['F',-1]],[8],[9,['C',0],['G',5]],[10,['F',-1]],[11],'=C|4','',
  '#Chorus',
- [12,['F',0,4],['Am',1,4],['G',5,8]],[13,['F',0,4],['Am',1,4],['G',3,8]],[14,['F',0,4],['Am',2,4],['G',6,8]],[15,['F',0,16]],'',
+ [12,['F',0],['Am',2],['G',5]],[13,['F',0],['Am',1],['G',3]],[14,['F',0],['Am',2],['G',6]],[15,['F',0]],'',
  '#Interlude','=C|4 G|4 F|4 C|4','',
  '#Verse 2',
- [16,['C',0,8]],[17,['G',0,8]],[18,['F',0,16]],[19],[20,['C',0,8]],[21,['G',0,8]],[22,['F',0,16]],[23],'=C|8','',
+ [16,['C',0]],[17,['G',1]],[18,['F',2]],[19],[20,['C',0]],[21,['G',1]],[22,['F',2]],[23],'=C|4','',
  '#Chorus',
- [24,['F',0,4],['Am',2,4],['G',6,8]],[25,['F',0,4],['Am',1,4],['G',3,8]],[26,['F',0,4],['Am',2,4],['G',6,8]],[27,['F',0,16]],'',
+ [24,['F',0],['Am',3],['G',6]],[25,['F',0],['Am',1],['G',3]],[26,['F',0],['Am',3],['G',6]],[27,['F',0]],'',
  '#Interlude','=C|4 G|4 F|4 C|4','',
  '#Ending',
- [28,['C',0,8]],[29,['G',0,8]],[30,['F',0,8]],[31,['C',0,8]],[32,['G',0,8]],[33,['F',0,8]],[34],'',
+ [28,['C',1]],[29,['G',0]],[30,['F',0]],[31,['C',0]],[32,['G',0]],[33,['F',0]],[34],'',
  '#Outro',
- [35,['C',0,8]],[36,['Gm',0,8]],[37,['F',0,8]]
+ [35,['C',0]],[36,['Gm',2]],[37,['F',1]]
 ];
 function withChords(line,c){
-  var parts=line.split(/(\s+)/),words=[],before={};
+  var parts=line.split(/(\s+)/),words=[],before={},tail='';
   parts.forEach(function(p,i){if(p&&!/^\s+$/.test(p)&&!/^\(.*\)$/.test(p))words.push(i);});
   c.forEach(function(x){
-    var pi=x[1]===0?0:words[x[1]];if(pi===undefined)pi=0;
-    (before[pi]=before[pi]||[]).push('['+x[0]+'|'+x[2]+']');
+    var tag='['+x[0]+']';
+    if(x[1]<0){tail+=tag;return;}
+    var pi=x[1]===0?0:words[x[1]];
+    if(pi===undefined){tail+=tag;return;}
+    (before[pi]=before[pi]||[]).push(tag);
   });
-  return parts.map(function(p,i){return (before[i]?before[i].join(''):'')+p;}).join('');
+  return parts.map(function(p,i){return (before[i]?before[i].join(''):'')+p;}).join('')+tail;
 }
 function applyYellow(raw){
   var ly=String(raw||'').split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l&&!SEC_RE.test(l)&&!isChordLine(l);});
@@ -806,51 +821,89 @@ function showChords(nowName,nowNote,nextName,nextNote){
   if(a!==lastCard.a){lastCard.a=a;$('#dgNow').innerHTML=cardHTML('Now',nowName,nowName?'':nowNote);}
   if(b!==lastCard.b){lastCard.b=b;$('#dgNext').innerHTML=cardHTML('Next',nextName,nextNote);}
 }
-function renderSheet(){
-  sheetEl.innerHTML='';unitEls=song.units.map(function(){return [];});marked=[];
-  if(!song.units.length){var p=document.createElement('p');p.className='empty';p.textContent='No chords yet. Tap Edit and paste a song with chords.';sheetEl.appendChild(p);return;}
+var wordEls=[],lineEls=[],unitStart=[],lastU=-2,lastW=-2,lastL=-2,lastNote='';
+function layoutSong(){
+  sheetEl.innerHTML='';unitEls=song.units.map(function(){return [];});wordEls=[];lineEls=[];unitStart=[];marked=[];lastU=-2;lastW=-2;lastL=-2;
+  if(!song.units.length){
+    var p=document.createElement('p');p.className='empty';p.textContent='No chords yet. Tap Edit and paste a song with chords.';sheetEl.appendChild(p);song.total=0;return;
+  }
+  var t=0,lb=Math.max(1,Math.round(S.lineBars*S.beats));
   song.lines.forEach(function(ln){
     var d=document.createElement('div');
-    if(ln.k==='gap'){d.className='gap';}
-    else if(ln.k==='sec'){d.className='sec';d.textContent=ln.text;}
-    else{
-      d.className='ln';
-      ln.segs.forEach(function(sg){
-        var e=document.createElement('span');e.className='sg';
-        var ch=document.createElement('span');ch.className='ch';ch.textContent=sg.chord||'';
-        var ly=document.createElement('span');ly.className='ly';ly.textContent=sg.text;
-        e.appendChild(ch);e.appendChild(ly);d.appendChild(e);
-        if(sg.u>=0)unitEls[sg.u].push(e);
+    if(ln.k==='gap'){d.className='gap';sheetEl.appendChild(d);return;}
+    if(ln.k==='sec'){d.className='sec';d.textContent=ln.text;sheetEl.appendChild(d);return;}
+    d.className='ln';
+    var hasText=ln.segs.some(function(g){return g.text&&g.text.trim();}),wl=[],info=[];
+    ln.segs.forEach(function(sg){
+      var e=document.createElement('span');e.className='sg';
+      var ch=document.createElement('span');ch.className='ch';ch.textContent=sg.chord||'';
+      var ly=document.createElement('span');ly.className='ly';
+      var before=wl.length;
+      (sg.text||'').split(/(\s+)/).forEach(function(tk){
+        if(!tk)return;
+        if(/^\s+$/.test(tk)){ly.appendChild(document.createTextNode(tk));}
+        else{var w=document.createElement('span');w.className='w';w.textContent=tk;ly.appendChild(w);wl.push(w);}
       });
-    }
+      e.appendChild(ch);e.appendChild(ly);d.appendChild(e);
+      if(sg.u>=0)unitEls[sg.u].push(e);
+      info.push({sg:sg,before:before});
+    });
     sheetEl.appendChild(d);
+    if(hasText){
+      var per=lb/Math.max(1,wl.length),li=lineEls.length;
+      lineEls.push({el:d,start:t,end:t+lb,w0:wordEls.length,n:wl.length});
+      wl.forEach(function(w,i){wordEls.push({el:w,start:t+i*per,line:li});});
+      info.forEach(function(x){if(x.sg.chord!==null&&x.sg.u>=0)unitStart[x.sg.u]=t+x.before*per;});
+      t+=lb;
+    }else{
+      info.forEach(function(x){if(x.sg.chord!==null&&x.sg.u>=0){unitStart[x.sg.u]=t;t+=song.units[x.sg.u].beats;}});
+    }
   });
+  song.total=t;
 }
-function mark(u,nu){
+function markUnits(u,nu){
   marked.forEach(function(e){e.classList.remove('on','nx');});marked=[];
   if(u>=0&&unitEls[u])unitEls[u].forEach(function(e){e.classList.add('on');marked.push(e);});
   if(nu>=0&&nu!==u&&unitEls[nu])unitEls[nu].forEach(function(e){e.classList.add('nx');marked.push(e);});
-  var t=u>=0?unitEls[u]:unitEls[nu],el=t&&t[0];
-  if(el){var top=el.offsetTop,h=sheetEl.clientHeight;if(top<sheetEl.scrollTop+10||top>sheetEl.scrollTop+h-90)sheetEl.scrollTop=Math.max(0,top-50);}
 }
-function unitAt(pos){for(var k=0;k<song.units.length;k++){if(pos<song.cum[k+1])return k;}return song.units.length-1;}
-function songTick(cur){
-  if(!song.units.length)return;
-  var u,nu,nowNote,nextNote;
-  if(cur.bar===0){u=-1;nu=0;nowNote='Count-in';nextNote='after the count-in';}
-  else{
-    var pos=((cur.bar-1)*S.beats+Math.floor(cur.i/S.sub))%song.total;
-    u=unitAt(pos);nu=(u+1)%song.units.length;
-    var left=song.cum[u+1]-pos;nowNote='';nextNote='in '+left+(left===1?' beat':' beats');
+function markWords(wi){
+  var li=wi>=0?wordEls[wi].line:-1;
+  if(li!==lastL){
+    if(lastL>=0&&lineEls[lastL]){lineEls[lastL].el.classList.remove('cur');for(var a=0;a<lineEls[lastL].n;a++)wordEls[lineEls[lastL].w0+a].el.className='w';}
+    if(li>=0){
+      var el=lineEls[li].el;el.classList.add('cur');
+      var top=el.offsetTop,h=sheetEl.clientHeight;
+      if(top<sheetEl.scrollTop+10||top>sheetEl.scrollTop+h-110)sheetEl.scrollTop=Math.max(0,top-50);
+    }
+    lastL=li;
   }
-  mark(u,nu);
-  showChords(u>=0?song.units[u].name:'',nowNote,song.units[nu].name,nextNote);
+  if(li>=0){var L=lineEls[li];for(var b=0;b<L.n;b++){var w=wordEls[L.w0+b];w.el.className='w'+(L.w0+b<wi?' done':L.w0+b===wi?' now':'');}}
+}
+function songFrame(pos){
+  if(!song.units.length||!song.total)return;
+  var p=pos-(S.shift||0),n=song.units.length,u,nu,wi=-1,note;
+  if(p<0){u=-1;nu=0;note='in '+Math.max(1,Math.ceil(-p-1e-6))+' beats';}
+  else{
+    p=p%song.total;
+    u=0;for(var k=0;k<n;k++){if(unitStart[k]<=p+1e-6)u=k;else break;}
+    nu=(u+1)%n;
+    var ns=nu>u?unitStart[nu]:song.total+unitStart[0],left=Math.max(1,Math.ceil(ns-p-1e-6));
+    note='in '+left+(left===1?' beat':' beats');
+    for(var q=0;q<wordEls.length;q++){if(wordEls[q].start<=p+1e-6)wi=q;else break;}
+    if(wi>=0&&p>=lineEls[wordEls[wi].line].end-1e-6)wi=-1;
+  }
+  if(u!==lastU){markUnits(u,nu);lastU=u;}
+  if(wi!==lastW){markWords(wi);lastW=wi;}
+  var key=(u>=0?song.units[u].name:'')+'|'+song.units[nu].name+'|'+note;
+  if(key!==lastNote){lastNote=key;showChords(u>=0?song.units[u].name:'',u>=0?'':'Count-in',song.units[nu].name,note);}
 }
 function songIdle(){
-  if(!song.units.length){showChords('','','','');$('#dgNow').innerHTML='';$('#dgNext').innerHTML='';return;}
-  mark(-1,0);showChords('','Stopped',song.units[0].name,'press Start');
+  lastU=-2;lastW=-2;lastNote='';
+  if(!song.units.length){$('#dgNow').innerHTML='';$('#dgNext').innerHTML='';return;}
+  markUnits(-1,0);markWords(-1);
+  showChords('','Stopped',song.units[0].name,'press Start');
 }
-function buildSong(){song=parseSong(S.songText);renderSheet();lastCard={};songIdle();$('#chordNow').hidden=!song.units.length;}
+function buildSong(){song=parseSong(S.songText);lastCard={};layoutSong();songIdle();$('#chordNow').hidden=!song.units.length;}
 var editBox=$('#songText'),editor=$('#songEditor'),editBtn=$('#songEdit');
 function setEditing(on){editor.hidden=!on;sheetEl.hidden=on;$('#chordNow').hidden=on||!song.units.length;editBtn.textContent=on?'Cancel':'Edit';if(on)editBox.value=S.songText||'';}
 editBtn.addEventListener('click',function(){setEditing(editor.hidden);});
@@ -864,6 +917,11 @@ $('#songApply').addEventListener('click',function(){
 });
 $('#songClear').addEventListener('click',function(){editBox.value='';});
 seg('#segChordLen',function(){return S.chordBars;},function(v){S.chordBars=+v;buildSong();save();});
+seg('#segLineLen',function(){return S.lineBars;},function(v){S.lineBars=+v;buildSong();save();});
+var shiftIn=$('#shift'),shiftOut=$('#shiftVal');
+function syncShift(){shiftIn.value=S.shift;shiftOut.textContent=(S.shift>0?'+':S.shift<0?'\u2212':'')+Math.abs(S.shift)+' beats';}
+shiftIn.addEventListener('input',function(){S.shift=+shiftIn.value;syncShift();save();});
+syncShift();
 
 /* ---------- hand coach ---------- */
 var handEl=$('#hand'),muteEl=$('#mute'),chkEl=$('#chk'),modeEl=$('#coachMode'),howLis=[].slice.call(document.querySelectorAll('#how li'));
@@ -944,13 +1002,17 @@ function frame(){
   var cur=null;
   for(var k=evs.length-1;k>=0;k--){if(evs[k].t+outLat<=now){cur=evs[k];break;}}
   if(cur&&cur!==lastCur){
-    lastCur=cur;setNow(cur.i);showRes(cur.i,'','');songTick(cur);
+    lastCur=cur;setNow(cur.i);showRes(cur.i,'','');
     if(cur.bar===0&&phase!=='count'){phase='count';setVerdict('Count-in. Stay quiet, then strum on the next bar.','idle','');}
     else if(cur.bar>=1&&phase!=='play'){
       phase='play';
       if(S.listen==='off')setVerdict('Click only. Switch on Microphone or Tap pad to see your timing.','idle','');
       else if(hits.length<3)setVerdict('Listening. Keep strumming.','idle','');
     }
+  }
+  if(cur){
+    var bd=60/S.bpm,fr=clamp((now-outLat-cur.t)/bd,0,slotDur()/bd*1.5);
+    songFrame((cur.bar-1)*S.beats+cur.i/S.sub+fr);
   }
   var lag=S.listen==='mic'?S.latency/1000:outLat,w=winSec();
   for(var m=0;m<evs.length;m++){
