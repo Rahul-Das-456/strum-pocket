@@ -157,6 +157,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px;margin:0}
 .how b{font-family:var(--font-display);margin-right:6px}
 .heard{width:14px;height:14px;border-radius:50%;background:var(--line);flex:none;transition:background .12s,transform .12s}
 .heard.on{background:var(--pocket);transform:scale(1.35)}
+.heard.ign{background:var(--behind);transform:scale(1.15)}
 .help{margin:0 0 16px;font-size:14px;color:var(--ink-soft);max-width:52ch}
 @media (prefers-reduced-motion:reduce){
   .slot,.gauge .avg{transition:none}
@@ -237,7 +238,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px;margin:0}
     <button class="go" id="go" type="button" aria-pressed="false">Start</button>
     <p class="note" id="micMsg" hidden></p>
     <div class="micbar" id="micbar" hidden>
-      <div class="microw"><span id="micState">Mic is on. The bar should jump when you strum.</span><i class="heard" id="heard"></i></div>
+      <div class="microw"><span id="micState">Mint dot: your strum. Amber dot: the click, ignored.</span><i class="heard" id="heard"></i></div>
       <div class="meter" aria-hidden="true"><div class="fill" id="lvl"></div><div class="thr" id="thr"></div></div>
     </div>
 
@@ -300,6 +301,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px;margin:0}
       <p class="help" id="calStatus" aria-live="polite">Take headphones off, set the volume to medium-loud and put the speaker near the mic. Strum Pocket plays ten clicks and measures how long they take to come back, so a strum exactly on the click reads as 0 ms. Bluetooth headphones add extra delay; use the slider to nudge it.</p>
     </details>
   </section>
+  <p class="note" id="ver">Version 4: click-proof strum detection</p>
 </main>
 
 <script>
@@ -313,7 +315,7 @@ var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
 var fmt=function(ms){var r=Math.round(ms);return (r>0?'+':r<0?'\u2212':'')+Math.abs(r)+' ms';};
 var rep=function(a,n){var o=[];for(var i=0;i<n;i++)o=o.concat(a);return o;};
 var POCKET=25;
-var KEY='strumpocket.v2';
+var KEY='strumpocket.v3';
 
 /* ---------- state ---------- */
 var S={bpm:90,beats:4,sub:2,patterns:{},listen:'mic',clickVol:0.7,clickOff:false,guide:false,sens:0.7,latency:60,calibrated:false,clickPeak:0,output:'headphones'};
@@ -409,13 +411,16 @@ function ensureCtx(){
   if(ctx.state==='suspended')ctx.resume();
 }
 function slotDur(){return 60/S.bpm/S.sub;}
+var BELL=(function(){var a=[],n=24;for(var i=0;i<=n;i++){var x=(i/n-0.5)*2*3;a.push(Math.exp(-x*x/2));}return new Float32Array(a);})();
 function clickSound(t,kind){
+  /* a soft low tone with no sharp edges: it never reaches the mic's strum band, and its peak lands on the beat */
   var o=ctx.createOscillator(),g=ctx.createGain();
-  var f=kind==='accent'?1900:kind==='beat'?1400:950;
-  var v=(kind==='off'?0.45:1)*S.clickVol*0.9;
+  var f=kind==='accent'?880:kind==='beat'?660:520;
+  var v=Math.max((kind==='off'?0.5:1)*S.clickVol*0.9,0.0002);
   o.type='sine';o.frequency.value=f;
-  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(Math.max(v,0.0002),t+0.001);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
-  o.connect(g);g.connect(master);o.start(t);o.stop(t+0.06);
+  g.gain.value=0;
+  g.gain.setValueCurveAtTime(BELL.map(function(x){return x*v;}),Math.max(t-0.021,ctx.currentTime+0.002),0.042);
+  o.connect(g);g.connect(master);o.start(t-0.022);o.stop(t+0.025);
 }
 function strumSound(t,dir){
   var order=dir==='D'?NOTES:NOTES.slice().reverse();
@@ -455,10 +460,11 @@ function restartCount(){
 
 /* ---------- microphone and onset detection ---------- */
 var stream=null,msrc=null,proc=null,sink=null,notches=[],micOn=false,micTesting=false;
-var CLICK_F=[1900,1400,950];
+var micWarmUntil=0;
+var CLICK_F=[1320,1760,1040,1980,2640,1560];
 var onsets=[],levelNow=0,level=0;
 var hpLp=0,hist=new Float32Array(64),hp=0,winCount=0,lastOnsetWin=-1e9,pend=null,floor=0,thrEff=0;
-function thrNow(){return 0.05*Math.pow(0.02,S.sens);}
+function thrNow(){return 0.012*Math.pow(0.02,S.sens);}
 function onAudio(ev){
   var x=ev.inputBuffer.getChannelData(0),n=x.length,sr=ctx.sampleRate;
   var base=(ev.playbackTime>0?ev.playbackTime:ctx.currentTime+n/sr)-n/sr;
@@ -479,7 +485,7 @@ function onAudio(ev){
 }
 function syncMicBar(){var b=$('#micbar');if(b)b.hidden=!micOn;}
 var heardT=null;
-function flashHeard(){var h=$('#heard');h.classList.add('on');clearTimeout(heardT);heardT=setTimeout(function(){h.classList.remove('on');},140);}
+function flashHeard(kind){var h=$('#heard');h.classList.remove('on','ign');h.classList.add(kind||'on');clearTimeout(heardT);heardT=setTimeout(function(){h.classList.remove('on','ign');},160);}
 function micMessage(text){var m=$('#micMsg');if(text){m.textContent=text;m.hidden=false;}else m.hidden=true;}
 async function startMic(){
   if(micOn)return true;
@@ -495,10 +501,11 @@ async function startMic(){
   proc.onaudioprocess=onAudio;
   sink=ctx.createGain();sink.gain.value=0;
   /* notch out the pitches of the app's own click so only your strums get through */
-  notches=CLICK_F.map(function(f){var n=ctx.createBiquadFilter();n.type='notch';n.frequency.value=f;n.Q.value=10;return n;});
+  var hps=[0,1,2].map(function(){var h=ctx.createBiquadFilter();h.type='highpass';h.frequency.value=2000;h.Q.value=-3.01;return h;});
+  notches=hps.concat(CLICK_F.map(function(f){var n=ctx.createBiquadFilter();n.type='notch';n.frequency.value=f;n.Q.value=12;return n;}));
   var tail=msrc;notches.forEach(function(n){tail.connect(n);tail=n;});
   tail.connect(proc);proc.connect(sink);sink.connect(ctx.destination);
-  micOn=true;micMessage('');syncMicBar();return true;
+  micOn=true;micWarmUntil=ctx.currentTime+0.4;micMessage('');syncMicBar();return true;
 }
 function stopMic(){
   if(!micOn)return;
@@ -522,12 +529,13 @@ function handleOnset(tt,peak,src){
     /* count-in bar: you are quiet, so anything heard on a click is the click itself. Learn its loudness and delay. */
     for(var q=0;q<evs.length;q++){
       var ce=evs[q];if(!ce.audible)continue;
-      if(ce.bar===0&&Math.abs(tt-ce.t)<0.09){leakPeak=Math.max(leakPeak,peak);leakOffs.push(tt-ce.t);return;}
+      if(ce.bar===0&&Math.abs(tt-ce.t)<0.09){leakPeak=Math.max(leakPeak,peak);leakOffs.push(tt-ce.t);flashHeard('ign');return;}
     }
     /* after that, ignore quiet sounds that land where the click lands */
     var lo=leakOffset(),ll=leakLevel();
-    if(ll>0){for(var r=0;r<evs.length;r++){var ge=evs[r];if(ge.audible&&Math.abs(tt-(ge.t+lo))<0.035&&peak<ll)return;}}
+    if(ll>0){for(var r=0;r<evs.length;r++){var ge=evs[r];if(ge.audible&&Math.abs(tt-(ge.t+lo))<0.035&&peak<ll){flashHeard('ign');return;}}}
   }
+  if(running)flashHeard('on');
   var best=null,bd=1e9;
   for(var k=0;k<evs.length;k++){var d=Math.abs(tt-evs[k].t);if(d<bd){bd=d;best=evs[k];}}
   if(!best||bd>winSec()||!best.scored)return;
@@ -656,7 +664,7 @@ function coachFrame(){
 }
 
 /* ---------- frame loop ---------- */
-function meterPos(L){return clamp((Math.log10(Math.max(L,1e-5))+3)/2.7,0,1);}
+function meterPos(L){return clamp((Math.log10(Math.max(L,1e-6))+4.3)/3,0,1);}
 function frame(){
   requestAnimationFrame(frame);
   coachFrame();
@@ -666,7 +674,8 @@ function frame(){
     var list=onsets.splice(0);
     for(var q=0;q<list.length;q++){
       var o=list[q];
-      if(micOn&&!calibrating)flashHeard();
+      if(micOn&&!calibrating&&!running)flashHeard('on');
+      if(o.t<micWarmUntil)continue;
       if(calibrating)calList.push(o);
       else if(running&&S.listen==='mic')handleOnset(o.t-S.latency/1000,o.peak,'mic');
     }
@@ -779,10 +788,11 @@ testBtn.addEventListener('click',async function(){
 /* ---------- latency calibration ---------- */
 var calibrating=false,calList=[];
 function calClick(t){
-  var o=ctx.createOscillator(),g=ctx.createGain();
-  o.type='sine';o.frequency.value=2400;
-  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(1,t+0.001);g.gain.exponentialRampToValueAtTime(0.0001,t+0.03);
-  o.connect(g);g.connect(master);o.start(t);o.stop(t+0.04);
+  var src=ctx.createBufferSource();src.buffer=noiseBuf;
+  var bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=4500;bp.Q.value=0.6;
+  var g=ctx.createGain();
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(1.5,t+0.001);g.gain.exponentialRampToValueAtTime(0.0001,t+0.025);
+  src.connect(bp);bp.connect(g);g.connect(master);src.start(t);src.stop(t+0.06);
 }
 async function calibrate(){
   var status=$('#calStatus'),btn=$('#calibrate');
