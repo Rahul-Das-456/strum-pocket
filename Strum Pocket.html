@@ -202,39 +202,209 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
   .slot,.gauge .avg{transition:none}
   .gauge .dot.new{animation:none}
 }
+
+/* one-screen layout */
+[hidden]{display:none !important}
+.shell{max-width:560px;margin:0 auto;padding:8px 14px 0;display:flex;flex-direction:column;gap:8px;
+  height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:600px}
+.bar1{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar1 h1{font-size:22px}
+.go{width:auto;min-width:118px;height:46px;border-radius:14px;font-size:18px;padding:0 22px}
+.tempo2{display:grid;grid-template-columns:auto 40px 1fr 40px;align-items:center;gap:8px}
+.bpmbox{display:flex;align-items:baseline;gap:5px;min-width:78px}
+.bpmbox output{font:700 30px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.bpmbox span{font-size:12px;color:var(--ink-soft)}
+.rb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font:600 22px/1 var(--font-display);padding:0}
+.tempo2 input[type=range]{height:28px}
+.seg.slim button{min-height:34px;font-size:14px}
+.seg.slim{padding:2px}
+.tappad{height:54px;font-size:16px;border-radius:16px}
+.board h2,.pan h2{font-size:15px}
+.board select{min-height:34px;padding:5px 10px}
+.bar{margin:8px 0 2px;gap:10px 8px}
+.slot{height:42px;border-radius:12px}
+.slot svg{width:18px;height:18px}
+.lab{font-size:12px}
+.res{min-height:14px;font-size:11px}
+.legend{margin:2px 0 0;font-size:12px;gap:2px 14px}
+.sw{width:13px;height:13px;border-radius:4px}
+.pocket{margin:0}
+.vrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.verdict{font-size:22px;line-height:1.15;min-height:1.15em;flex:1}
+.micmini{display:flex;align-items:center;gap:8px;flex:none;width:92px}
+.meter.slim{height:8px;flex:1}
+.coach{margin:2px 0 6px;min-height:2.6em;font-size:13px;line-height:1.3}
+.gauge{height:58px;border-radius:14px}
+.gauge .dot{width:13px;height:13px;margin:-6.5px 0 0 -6.5px}
+.gauge .dot.u{width:10px;height:10px;margin:-5px 0 0 -5px}
+.glabels{margin-top:3px;font-size:11px}
+.gkey2{display:flex;align-items:center;gap:5px}
+.gkey2 i{display:inline-block;width:9px;height:9px;background:var(--ink-soft)}
+.gkey2 .kd2{border-radius:50%}
+.gkey2 .ku2{border-radius:2px;transform:rotate(45deg);width:8px;height:8px;margin-left:8px}
+.stats{margin:8px 0 0;gap:6px}
+.stats div{padding:6px 8px;border-radius:12px}
+.stats dt{font-size:11px}
+.stats dd{font-size:15px}
+.pocket .note{margin:6px 0 0;font-size:12px}
+.tabarea{flex:1;min-height:0;display:flex;flex-direction:column}
+.pan{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
+.pan>*{flex:none}
+.pan .sheet{flex:1 1 auto;min-height:120px;max-height:none}
+.btn.sm{min-height:34px;padding:0 14px}
+.chordnow{margin:0;gap:8px}
+.dgbox{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;padding:7px 10px;min-height:0;border-radius:14px}
+.dg{width:50px;flex:none}
+.dgcap{text-align:left;font-size:12px;display:grid;gap:0;line-height:1.25}
+.dgcap b{font-size:22px;margin:0;display:block}
+.dgcap .dgl{color:var(--ink-soft)}
+.dgcap .dgn{color:var(--ink-soft)}
+.dgcap.nod{min-height:0}
+#coachSvg{max-height:210px;margin:0 auto}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:3px;margin-bottom:8px}
+.tabs button{min-height:44px;border:0;border-radius:13px;background:none;font:650 15px var(--font-display);color:var(--ink-soft)}
+.tabs button[aria-selected="true"]{background:var(--on);color:var(--on-ink)}
+.more{border-top:0;padding-top:0}
+.pan details.more{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 12px}
+.pan details.more[open]{padding-bottom:6px}
+
+/* tighter top area */
+.shell{padding-top:6px;gap:6px}
+.rowA{display:flex;align-items:center;gap:8px}
+.rowA .seg{flex:1}
+.go{min-width:104px;height:42px;font-size:17px;padding:0 18px}
+.seg.slim button{min-height:34px;font-size:13.5px}
+.tempo2 .rb{width:38px;height:38px}
+.slot{height:40px}
+.bar{margin:6px 0 0;gap:8px 8px}
+.board .row{gap:10px}
+.board .legend{margin:0;font-size:11.5px;gap:2px 10px;justify-content:flex-end;flex:1}
+.board select{max-width:46%;min-height:32px;font-size:14px}
+.verdict{font-size:20px;min-height:1.15em}
+.coach{min-height:1.3em;font-size:12.5px;margin:1px 0 5px}
+.gauge{height:50px;border-radius:12px}
+.stats{margin:6px 0 0}
+.stats div{padding:4px 8px}
+.stats dd{font-size:14px}
+.pocket .note{margin:4px 0 0;font-size:11.5px}
+@media (max-height:720px){
+  .stats{display:none}
+  .coach{display:none}
+}
+
+.board select{flex:none;width:150px;max-width:none;text-overflow:ellipsis}
+.board .legend{flex-wrap:nowrap;white-space:nowrap;gap:0 10px}
+.board .legend li{gap:5px}
+.seg.slim button{white-space:nowrap}
 </style>
 </head>
 <body>
-<main class="app">
-  <header>
-    <h1>Strum Pocket</h1>
-    <p class="lede">A ukulele metronome that shows whether your strums land ahead of the click or behind it.</p>
-  </header>
+<div class="shell">
+  <h1 class="sr">Strum Pocket</h1>
+  <div class="rowA">
+    <div class="seg slim" id="segListen" role="radiogroup" aria-label="Check my timing with">
+      <button type="button" role="radio" data-v="mic" title="Listen with the microphone">Mic</button>
+      <button type="button" role="radio" data-v="tap" title="Tap the screen in time">Tap</button>
+      <button type="button" role="radio" data-v="off" title="Click only, no timing check">Click</button>
+    </div>
+    <button class="go" id="go" type="button" aria-pressed="false">Start</button>
+  </div>
+
+  <div class="tempo2">
+    <div class="bpmbox"><output id="bpmVal" for="bpm">90</output><span>BPM</span></div>
+    <button class="rb" id="bpmDown" type="button" aria-label="Slower">&minus;</button>
+    <input type="range" id="bpm" min="40" max="200" step="1" aria-label="Tempo">
+    <button class="rb" id="bpmUp" type="button" aria-label="Faster">+</button>
+  </div>
+
+  <button class="tappad" id="tapPad" type="button" hidden>Tap your strums here</button>
 
   <section class="board" aria-labelledby="patTitle">
     <div class="row between">
-      <h2 id="patTitle">Strumming pattern</h2>
+      <h2 id="patTitle" class="sr">Pattern</h2>
       <label><span class="sr">Preset pattern</span><select id="preset"></select></label>
+      <ul class="legend">
+        <li><i class="sw s1"></i>Strum</li>
+        <li><i class="sw s2"></i>Ghost</li>
+        <li><i class="sw s0"></i>Air</li>
+      </ul>
     </div>
     <div class="bar" id="bar" role="group" aria-label="Pattern slots"></div>
-    <ul class="legend">
-      <li><i class="sw s1"></i>Strum</li>
-      <li><i class="sw s2"></i>Ghost, a muted chk</li>
-      <li><i class="sw s0"></i>Air, silent</li>
-    </ul>
-    <p class="hint">Your hand never stops: down on the number, up on the “&amp;”. Tap a slot to switch it between strum, ghost and air.</p>
-    <details class="explain">
-      <summary>What is a ghost strum?</summary>
-      <p>A ghost strum keeps your hand swinging while your fretting hand relaxes onto the strings, so you hear a soft, percussive chk instead of a ringing chord. An air strum swings over the strings without touching them. Ghosts add rhythm; air keeps the motion steady when you want silence.</p>
-    </details>
   </section>
 
-  <section class="coach-panel" aria-labelledby="coachTitle">
-    <div class="row between">
-      <h2 id="coachTitle">Hand coach</h2>
-      <span class="coachmode" id="coachMode">Silent demo at your tempo</span>
+  <section class="pocket" aria-labelledby="pocketTitle">
+    <h2 id="pocketTitle" class="sr">Timing</h2>
+    <div class="vrow">
+      <p class="verdict" id="verdict" aria-live="polite" data-tone="idle">Press Start, then play along.</p>
+      <div class="micmini" id="micbar" hidden><i class="heard" id="heard"></i><div class="meter slim" aria-hidden="true"><div class="fill" id="lvl"></div><div class="thr" id="thr"></div></div></div>
     </div>
-    <svg id="coachSvg" viewBox="0 0 360 230" role="img" aria-label="Animated strumming hand that swings down and up in time with the pattern. On strum slots it brushes the strings. On ghost slots the fretting hand mutes the strings. On air slots it misses them.">
+    <p class="coach" id="coach"></p>
+    <div class="gauge" id="gauge" aria-hidden="true">
+      <div class="ticks"></div><div class="zone"></div><div class="mid"></div><div class="avg" id="avg"></div>
+      <div id="dots"></div>
+    </div>
+    <div class="glabels" aria-hidden="true"><span>Ahead</span><span class="gkey2"><i class="kd2"></i>down <i class="ku2"></i>up</span><span>Behind</span></div>
+    <dl class="stats">
+      <div><dt>Downs</dt><dd id="stDown">–</dd></div>
+      <div><dt>Ups</dt><dd id="stUp">–</dd></div>
+      <div><dt>Steadiness</dt><dd id="stSpread">–</dd></div>
+      <div><dt>Hits</dt><dd id="stHits">–</dd></div>
+    </dl>
+    <p class="note" id="micMsg" hidden></p>
+    <p class="note" id="calNote" hidden>Not calibrated yet: <button type="button" id="calJump">calibrate</button></p>
+  </section>
+
+  <main class="tabarea">
+    <section class="pan" id="panSong" aria-label="Song sheet">
+      <div class="row between">
+        <h2 id="songTitle">Song sheet</h2>
+        <button class="btn sm" id="songEdit" type="button">Edit</button>
+      </div>
+      <div class="chordnow" id="chordNow">
+        <div class="dgbox now" id="dgNow"></div>
+        <div class="dgbox" id="dgNext"></div>
+      </div>
+      <div class="sheet" id="sheet" tabindex="0" aria-label="Chords and lyrics"></div>
+      <div id="songEditor" hidden>
+      <label class="field"><span>Chords and lyrics</span><textarea id="songText" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea></label>
+      <p class="help">Paste a song here from a tab page, or type your own. Chords can sit above the words, or inline in brackets like [C]word. Add a pipe and a number after a chord to set its length in beats, like C|8. Lines such as Verse or Chorus become headings.</p>
+      <p class="note" id="songMsg" hidden></p>
+      <div class="btnrow">
+        <button class="btn" id="songDone" type="button">Done</button>
+        <button class="btn" id="songApply" type="button">Add Yellow chord changes to my lyrics</button>
+        <button class="btn" id="songYellow" type="button">Load Yellow chords only</button>
+        <button class="btn" id="songClear" type="button">Clear</button>
+      </div>
+    </div>
+      <details class="more">
+        <summary>Song timing</summary>
+        <div class="field"><span id="lblChordLen">Default chord length, for chord-only lines</span>
+          <div class="seg" id="segChordLen" role="radiogroup" aria-labelledby="lblChordLen">
+            <button type="button" role="radio" data-v="0.5">Half bar</button>
+            <button type="button" role="radio" data-v="1">1 bar</button>
+            <button type="button" role="radio" data-v="2">2 bars</button>
+            <button type="button" role="radio" data-v="4">4 bars</button>
+          </div>
+        </div>
+        <div class="field"><span id="lblLineLen">Lyric line length</span>
+          <div class="seg" id="segLineLen" role="radiogroup" aria-labelledby="lblLineLen">
+            <button type="button" role="radio" data-v="1">1 bar</button>
+            <button type="button" role="radio" data-v="2">2 bars</button>
+            <button type="button" role="radio" data-v="4">4 bars</button>
+          </div>
+        </div>
+        <label class="field"><span>Shift lyrics <output id="shiftVal"></output></span><input type="range" id="shift" min="-2" max="2" step="0.25"></label>
+        <p class="help">Words light up one by one across each line, and a chord label lights up when it changes. Everything is counted in beats, so it follows any tempo. Each lyric line is spread over the line length you pick, and 2 bars is a good start for Yellow. The timing is an estimate: use Shift lyrics if the singing comes in earlier or later than the highlight. The Yellow skeleton has chords only, because the lyrics are not included here.</p>
+      </details>
+    </section>
+
+    <section class="pan" id="panCoach" aria-label="Hand coach" hidden>
+      <div class="row between">
+        <h2 id="coachTitle">Hand coach</h2>
+        <span class="coachmode" id="coachMode">Silent demo at your tempo</span>
+      </div>
+      <svg id="coachSvg" viewBox="0 0 360 230" role="img" aria-label="Animated strumming hand that swings down and up in time with the pattern. On strum slots it brushes the strings. On ghost slots the fretting hand mutes the strings. On air slots it misses them.">
       <text class="sl" x="14" y="73">G</text><text class="sl" x="14" y="99">C</text><text class="sl" x="14" y="125">E</text><text class="sl" x="14" y="151">A</text>
       <line class="guide" x1="236" y1="14" x2="236" y2="200"/>
       <path class="str" id="str0" d="M40 69 L330 69"/>
@@ -247,101 +417,21 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
       <g id="hand"><line class="arm" x1="252" y1="0" x2="345" y2="0"/><circle class="tip" cx="236" cy="0" r="13"/></g>
       <text class="lbl" x="300" y="222" text-anchor="middle">strumming hand</text>
     </svg>
-    <ul class="how" id="how">
+      <ul class="how" id="how">
       <li data-s="1"><b>Strum</b>Brush all four strings with the pad of your finger.</li>
       <li data-s="2"><b>Ghost</b>Keep swinging and rest your fretting fingers lightly across the strings so it sounds a soft chk.</li>
       <li data-s="0"><b>Air</b>Keep swinging and miss the strings.</li>
     </ul>
-  </section>
+      <p class="hint">Your hand never stops: down on the number, up on the &ldquo;&amp;&rdquo;. Tap a slot in the pattern to switch it between strum, ghost and air.</p>
+      <details class="explain">
+        <summary>What is a ghost strum?</summary>
+        <p>A ghost strum keeps your hand swinging while your fretting hand relaxes onto the strings, so you hear a soft, percussive chk instead of a ringing chord. An air strum swings over the strings without touching them. Ghosts add rhythm; air keeps the motion steady when you want silence.</p>
+      </details>
+    </section>
 
-  <section class="song" aria-labelledby="songTitle">
-    <div class="row between">
-      <h2 id="songTitle">Song sheet</h2>
-      <button class="btn" id="songEdit" type="button">Edit</button>
-    </div>
-    <div class="chordnow" id="chordNow">
-      <div class="dgbox now" id="dgNow"></div>
-      <div class="dgbox" id="dgNext"></div>
-    </div>
-    <div class="sheet" id="sheet" tabindex="0" aria-label="Chords and lyrics"></div>
-    <div id="songEditor" hidden>
-      <label class="field"><span>Chords and lyrics</span><textarea id="songText" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea></label>
-      <p class="help">Paste a song here from a tab page, or type your own. Chords can sit above the words, or inline in brackets like [C]word. Add a pipe and a number after a chord to set its length in beats, like C|8. Lines such as Verse or Chorus become headings.</p>
-      <p class="note" id="songMsg" hidden></p>
-      <div class="btnrow">
-        <button class="btn" id="songDone" type="button">Done</button>
-        <button class="btn" id="songApply" type="button">Add Yellow chord changes to my lyrics</button>
-        <button class="btn" id="songYellow" type="button">Load Yellow chords only</button>
-        <button class="btn" id="songClear" type="button">Clear</button>
-      </div>
-    </div>
-    <div class="field" style="margin-top:14px"><span id="lblChordLen">Default chord length</span>
-      <div class="seg" id="segChordLen" role="radiogroup" aria-labelledby="lblChordLen">
-        <button type="button" role="radio" data-v="0.5">Half bar</button>
-        <button type="button" role="radio" data-v="1">1 bar</button>
-        <button type="button" role="radio" data-v="2">2 bars</button>
-        <button type="button" role="radio" data-v="4">4 bars</button>
-      </div>
-    </div>
-    <div class="field"><span id="lblLineLen">Lyric line length</span>
-      <div class="seg" id="segLineLen" role="radiogroup" aria-labelledby="lblLineLen">
-        <button type="button" role="radio" data-v="1">1 bar</button>
-        <button type="button" role="radio" data-v="2">2 bars</button>
-        <button type="button" role="radio" data-v="4">4 bars</button>
-      </div>
-    </div>
-    <label class="field"><span>Shift lyrics <output id="shiftVal"></output></span><input type="range" id="shift" min="-2" max="2" step="0.25"></label>
-    <p class="help">Words light up one by one across each line, and a chord label lights up when it changes. Everything is counted in beats, so it follows any tempo. Each lyric line is spread over the line length you pick, and 2 bars is a good start for Yellow. I can't hear the recording, so the timing is an estimate: use Shift lyrics if the singing comes in earlier or later than the highlight. The Yellow skeleton has chords only, because the lyrics are not included here.</p>
-  </section>
-
-  <section class="pocket" aria-labelledby="pocketTitle">
-    <h2 id="pocketTitle" class="sr">Timing</h2>
-    <p class="verdict" id="verdict" aria-live="polite" data-tone="idle">Press Start. Stay quiet for the one-bar count-in, then play along.</p>
-    <p class="coach" id="coach"></p>
-    <div class="gauge" id="gauge" aria-hidden="true">
-      <div class="ticks"></div><div class="zone"></div><div class="mid"></div><div class="avg" id="avg"></div>
-      <div id="dots"></div>
-    </div>
-    <div class="glabels" aria-hidden="true"><span>Ahead 100 ms</span><span>On the click</span><span>Behind 100 ms</span></div>
-    <div class="gkey" aria-hidden="true"><span><i class="kd"></i>Down stroke</span><span><i class="ku"></i>Up stroke</span></div>
-    <dl class="stats">
-      <div><dt>Downs</dt><dd id="stDown">–</dd></div>
-      <div><dt>Ups</dt><dd id="stUp">–</dd></div>
-      <div><dt>Steadiness</dt><dd id="stSpread">–</dd></div>
-      <div><dt>Hits</dt><dd id="stHits">–</dd></div>
-    </dl>
-    <p class="note" id="calNote" hidden>Ahead and behind readings are approximate until you <button type="button" id="calJump">calibrate latency</button>.</p>
-  </section>
-
-  <section class="controls" aria-label="Controls">
-    <button class="go" id="go" type="button" aria-pressed="false">Start</button>
-    <p class="note" id="micMsg" hidden></p>
-    <div class="micbar" id="micbar" hidden>
-      <div class="microw"><span id="micState">Mint dot: your strum. Amber dot: the click, ignored.</span><i class="heard" id="heard"></i></div>
-      <div class="meter" aria-hidden="true"><div class="fill" id="lvl"></div><div class="thr" id="thr"></div></div>
-    </div>
-
-    <div class="tempo">
-      <div class="tempo-top">
-        <button class="round" id="bpmDown" type="button" aria-label="Slower">−</button>
-        <div class="bpm"><output id="bpmVal" for="bpm">90</output><span>beats per minute</span></div>
-        <button class="round" id="bpmUp" type="button" aria-label="Faster">+</button>
-      </div>
-      <input type="range" id="bpm" min="40" max="200" step="1" aria-label="Tempo">
+    <section class="pan" id="panSet" aria-label="Settings" hidden>
       <button class="btn wide" id="tapTempo" type="button">Tap tempo</button>
-    </div>
-
-    <div class="listen">
-      <span id="lblListen">Check my timing with</span>
-      <div class="seg" id="segListen" role="radiogroup" aria-labelledby="lblListen">
-        <button type="button" role="radio" data-v="mic">Microphone</button>
-        <button type="button" role="radio" data-v="tap">Tap pad</button>
-        <button type="button" role="radio" data-v="off">Click only</button>
-      </div>
-      <button class="tappad" id="tapPad" type="button" hidden>Tap your strums here</button>
-    </div>
-
-    <details class="more">
+      <details class="more" open>
       <summary>Pattern and click</summary>
       <div class="field"><span id="lblMeter">Meter</span>
         <div class="seg" id="segMeter" role="radiogroup" aria-labelledby="lblMeter">
@@ -360,8 +450,7 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
       <p class="help">Guide strums are meant for headphones, so the mic does not hear them.</p>
       <label class="field"><span>Click volume</span><input type="range" id="vol" min="0" max="1" step="0.05"></label>
     </details>
-
-    <details class="more" id="micSettings">
+      <details class="more" id="micSettings">
       <summary>Microphone and latency</summary>
       <div class="field"><span>Mic check</span>
         <button class="btn" id="micTest" type="button">Check mic level</button>
@@ -379,10 +468,17 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
       <button class="btn wide" id="calibrate" type="button">Calibrate with speaker</button>
       <p class="help" id="calStatus" aria-live="polite">Take headphones off, set the volume to medium-loud and put the speaker near the mic. Strum Pocket plays ten clicks and measures how long they take to come back, so a strum exactly on the click reads as 0 ms. Bluetooth headphones add extra delay; use the slider to nudge it.</p>
     </details>
-  </section>
-  <p class="note" id="install" hidden>To install: in Safari tap the Share button, then Add to Home Screen. On Android Chrome, open the menu and tap Install app.</p>
-  <p class="note" id="ver">Version 8: click-proof strum detection</p>
-</main>
+      <p class="note" id="install" hidden>To install: in Safari tap the Share button, then Add to Home Screen. On Android Chrome, open the menu and tap Install app.</p>
+      <p class="note" id="ver">Version 9: click-proof strum detection</p>
+    </section>
+  </main>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab_song" aria-selected="true" data-tab="song">Song</button>
+    <button type="button" role="tab" id="tab_coach" aria-selected="false" data-tab="coach">Hand coach</button>
+    <button type="button" role="tab" id="tab_set" aria-selected="false" data-tab="set">Settings</button>
+  </nav>
+</div>
 
 <script>
 (function(){
@@ -399,7 +495,7 @@ var KEY='strumpocket.v3';
 
 /* ---------- state ---------- */
 var YELLOW_SKELETON=['[Intro]','C|4 G|4 F|4 C|4','C|4 G|4 F|4 C|4','','[Verse]','C|8 G|8 F|16','C|8 G|8 F|16','C|8 G|8 F|16','C|8','','[Chorus]','F|4 Am|4 G|8','F|4 Am|4 G|8','F|4 Am|4 G|8','F|16','','[Interlude]','C|4 G|4 F|4 C|4','','[Verse 2]','C|8 G|8 F|16','C|8 G|8 F|16','C|8','','[Chorus]','F|4 Am|4 G|8','F|4 Am|4 G|8','F|4 Am|4 G|8','F|16','','[Interlude]','C|4 G|4 F|4 C|4','','[Ending]','C|8 G|8 F|8 C|8 G|8 F|8','','[Outro]','C|8 Gm|8 F|8'].join('\n');
-var S={songText:YELLOW_SKELETON,chordBars:1,lineBars:2,shift:0,bpm:90,beats:4,sub:2,patterns:{},listen:'mic',clickVol:0.7,clickOff:false,guide:false,sens:0.7,latency:60,calibrated:false,clickPeak:0,output:'headphones'};
+var S={tab:'song',songText:YELLOW_SKELETON,chordBars:1,lineBars:2,shift:0,bpm:90,beats:4,sub:2,patterns:{},listen:'mic',clickVol:0.7,clickOff:false,guide:false,sens:0.7,latency:60,calibrated:false,clickPeak:0,output:'headphones'};
 try{var saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object')Object.assign(S,saved);}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
@@ -812,9 +908,9 @@ function diagram(frets){
 }
 function esc(t){return String(t).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 function cardHTML(label,name,note){
-  if(!name)return '<div class="dgcap">'+esc(label)+'<b>'+esc(note||'')+'</b></div>';
+  if(!name)return '<div class="dgcap"><span class="dgl">'+esc(label)+'</span><b>'+esc(note||'')+'</b></div>';
   var sh=shapeFor(name);
-  return (sh?diagram(sh):'<div class="dgcap" style="min-height:96px">no diagram</div>')+'<div class="dgcap">'+esc(label)+'<b>'+esc(name)+'</b>'+(note?esc(note):'')+'</div>';
+  return (sh?diagram(sh):'<div class="dgcap nod">no diagram</div>')+'<div class="dgcap"><span class="dgl">'+esc(label)+'</span><b>'+esc(name)+'</b>'+(note?'<span class="dgn">'+esc(note)+'</span>':'')+'</div>';
 }
 function showChords(nowName,nowNote,nextName,nextNote){
   var a=nowName+'|'+nowNote,b=nextName+'|'+nextNote;
@@ -904,6 +1000,13 @@ function songIdle(){
   showChords('','Stopped',song.units[0].name,'press Start');
 }
 function buildSong(){song=parseSong(S.songText);lastCard={};layoutSong();songIdle();$('#chordNow').hidden=!song.units.length;}
+function scrollCur(){var L=lineEls[lastL];if(!L)return;sheetEl.scrollTop=Math.max(0,L.el.offsetTop-Math.max(20,sheetEl.clientHeight/3));}
+var TAB_IDS=['song','coach','set'];
+function showTab(k){
+  TAB_IDS.forEach(function(n){var on=n===k;$('#pan'+n.charAt(0).toUpperCase()+n.slice(1)).hidden=!on;$('#tab_'+n).setAttribute('aria-selected',String(on));});
+  S.tab=k;save();if(k==='song')scrollCur();
+}
+TAB_IDS.forEach(function(n){$('#tab_'+n).addEventListener('click',function(){showTab(n);});});
 var editBox=$('#songText'),editor=$('#songEditor'),editBtn=$('#songEdit');
 function setEditing(on){editor.hidden=!on;sheetEl.hidden=on;$('#chordNow').hidden=on||!song.units.length;editBtn.textContent=on?'Cancel':'Edit';if(on)editBox.value=S.songText||'';}
 editBtn.addEventListener('click',function(){setEditing(editor.hidden);});
@@ -945,6 +1048,7 @@ function coachFrame(){
     wasRunning=running;lastStrum=null;prevKey=null;
     modeEl.textContent=running?'Synced to the click':(reduceMotion?'Press Start to see it move':'Silent demo at your tempo');
   }
+  if($('#panCoach').hidden)return;
   var m=motion();
   if(!m){handEl.setAttribute('transform','translate(0,'+H_CY+')');return;}
   /* the hand is a continuous sine: it crosses the strings exactly on each slot */
@@ -1003,10 +1107,10 @@ function frame(){
   for(var k=evs.length-1;k>=0;k--){if(evs[k].t+outLat<=now){cur=evs[k];break;}}
   if(cur&&cur!==lastCur){
     lastCur=cur;setNow(cur.i);showRes(cur.i,'','');
-    if(cur.bar===0&&phase!=='count'){phase='count';setVerdict('Count-in. Stay quiet, then strum on the next bar.','idle','');}
+    if(cur.bar===0&&phase!=='count'){phase='count';setVerdict('Count-in. Stay quiet, then strum.','idle','');}
     else if(cur.bar>=1&&phase!=='play'){
       phase='play';
-      if(S.listen==='off')setVerdict('Click only. Switch on Microphone or Tap pad to see your timing.','idle','');
+      if(S.listen==='off')setVerdict('Click only. Pick Mic or Tap for timing.','idle','');
       else if(hits.length<3)setVerdict('Listening. Keep strumming.','idle','');
     }
   }
@@ -1042,7 +1146,7 @@ async function start(){
   leakPeak=0;leakOffs=[];
   evs=[];slotIdx=0;nextTime=ctx.currentTime+0.15;
   running=true;timer=setInterval(scheduler,25);scheduler();
-  setVerdict(fellBack?'Microphone unavailable. The tap pad is on instead.':S.listen==='off'?'Click only. Count-in first.':'Count-in. Stay quiet, then strum on the next bar.','idle','');
+  setVerdict(fellBack?'Mic unavailable. Tap pad is on.':S.listen==='off'?'Click only. Count-in first.':'Count-in. Stay quiet, then strum.','idle','');
   syncGo();
 }
 function stop(){
@@ -1094,13 +1198,13 @@ sensIn.addEventListener('input',function(){S.sens=+sensIn.value;syncSens();save(
 var latIn=$('#lat'),latOut=$('#latVal');
 function syncLat(){latIn.value=S.latency;latOut.textContent=S.latency+' ms';}
 latIn.addEventListener('input',function(){S.latency=+latIn.value;S.calibrated=true;syncLat();syncListenUI();save();});
-$('#calJump').addEventListener('click',function(){var d=$('#micSettings');d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});});
+$('#calJump').addEventListener('click',function(){showTab('set');var d=$('#micSettings');d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});});
 var testBtn=$('#micTest');
 testBtn.addEventListener('click',async function(){
   if(micTesting){micTesting=false;if(!running)stopMic();testBtn.textContent='Check mic level';return;}
   ensureCtx();
   if(await startMic()){micTesting=true;testBtn.textContent='Stop checking';}
-  else{$('#micSettings').open=true;}
+  else{showTab('set');$('#micSettings').open=true;}
 });
 
 /* ---------- latency calibration ---------- */
@@ -1154,6 +1258,7 @@ function init(){
 }
 init();
 buildSong();
+showTab(TAB_IDS.indexOf(S.tab)>=0?S.tab:'song');
 try{
   var standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
   if(!standalone)$('#install').hidden=false;
