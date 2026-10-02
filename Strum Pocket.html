@@ -216,7 +216,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:32px;margin:0}
 
   <section class="pocket" aria-labelledby="pocketTitle">
     <h2 id="pocketTitle" class="sr">Timing</h2>
-    <p class="verdict" id="verdict" aria-live="polite" data-tone="idle">Press Start. One bar of count-in, then play along.</p>
+    <p class="verdict" id="verdict" aria-live="polite" data-tone="idle">Press Start. Stay quiet for the one-bar count-in, then play along.</p>
     <p class="coach" id="coach"></p>
     <div class="gauge" id="gauge" aria-hidden="true">
       <div class="ticks"></div><div class="zone"></div><div class="mid"></div><div class="avg" id="avg"></div>
@@ -454,7 +454,8 @@ function restartCount(){
 }
 
 /* ---------- microphone and onset detection ---------- */
-var stream=null,msrc=null,proc=null,sink=null,micOn=false,micTesting=false;
+var stream=null,msrc=null,proc=null,sink=null,notches=[],micOn=false,micTesting=false;
+var CLICK_F=[1900,1400,950];
 var onsets=[],levelNow=0,level=0;
 var hpLp=0,hist=new Float32Array(64),hp=0,winCount=0,lastOnsetWin=-1e9,pend=null,floor=0,thrEff=0;
 function thrNow(){return 0.05*Math.pow(0.02,S.sens);}
@@ -493,12 +494,16 @@ async function startMic(){
   proc=ctx.createScriptProcessor(512,1,1);
   proc.onaudioprocess=onAudio;
   sink=ctx.createGain();sink.gain.value=0;
-  msrc.connect(proc);proc.connect(sink);sink.connect(ctx.destination);
+  /* notch out the pitches of the app's own click so only your strums get through */
+  notches=CLICK_F.map(function(f){var n=ctx.createBiquadFilter();n.type='notch';n.frequency.value=f;n.Q.value=10;return n;});
+  var tail=msrc;notches.forEach(function(n){tail.connect(n);tail=n;});
+  tail.connect(proc);proc.connect(sink);sink.connect(ctx.destination);
   micOn=true;micMessage('');syncMicBar();return true;
 }
 function stopMic(){
   if(!micOn)return;
-  try{msrc.disconnect();proc.disconnect();sink.disconnect();}catch(e){}
+  try{msrc.disconnect();notches.forEach(function(n){n.disconnect();});proc.disconnect();sink.disconnect();}catch(e){}
+  notches=[];
   proc.onaudioprocess=null;
   stream.getTracks().forEach(function(t){t.stop();});
   micOn=false;stream=null;level=0;levelNow=0;pend=null;floor=0;
@@ -509,10 +514,19 @@ function stopMic(){
 var hits=[],recent=[],phase='idle',lastCur=null,tapTimes=[];
 function winSec(){return Math.min(0.5*slotDur(),0.16);}
 function tone(off){return Math.abs(off)<=POCKET?'pocket':off<0?'ahead':'behind';}
-function leakLevel(){return S.clickPeak>0?S.clickPeak*2:0.06;}
+var leakPeak=0,leakOffs=[];
+function leakLevel(){return Math.max(leakPeak*1.6,S.output==='speaker'&&S.clickPeak>0?S.clickPeak*2:0);}
+function leakOffset(){if(!leakOffs.length)return 0;var a=leakOffs.slice().sort(function(x,y){return x-y;});return a[Math.floor(a.length/2)];}
 function handleOnset(tt,peak,src){
-  if(src==='mic'&&S.output==='speaker'){
-    for(var q=0;q<evs.length;q++){if(evs[q].audible&&Math.abs(tt-evs[q].t)<0.04&&peak<leakLevel())return;}
+  if(src==='mic'){
+    /* count-in bar: you are quiet, so anything heard on a click is the click itself. Learn its loudness and delay. */
+    for(var q=0;q<evs.length;q++){
+      var ce=evs[q];if(!ce.audible)continue;
+      if(ce.bar===0&&Math.abs(tt-ce.t)<0.09){leakPeak=Math.max(leakPeak,peak);leakOffs.push(tt-ce.t);return;}
+    }
+    /* after that, ignore quiet sounds that land where the click lands */
+    var lo=leakOffset(),ll=leakLevel();
+    if(ll>0){for(var r=0;r<evs.length;r++){var ge=evs[r];if(ge.audible&&Math.abs(tt-(ge.t+lo))<0.035&&peak<ll)return;}}
   }
   var best=null,bd=1e9;
   for(var k=0;k<evs.length;k++){var d=Math.abs(tt-evs[k].t);if(d<bd){bd=d;best=evs[k];}}
@@ -667,7 +681,7 @@ function frame(){
   for(var k=evs.length-1;k>=0;k--){if(evs[k].t+outLat<=now){cur=evs[k];break;}}
   if(cur&&cur!==lastCur){
     lastCur=cur;setNow(cur.i);showRes(cur.i,'','');
-    if(cur.bar===0&&phase!=='count'){phase='count';setVerdict('Count-in. Start strumming on the next bar.','idle','');}
+    if(cur.bar===0&&phase!=='count'){phase='count';setVerdict('Count-in. Stay quiet, then strum on the next bar.','idle','');}
     else if(cur.bar>=1&&phase!=='play'){
       phase='play';
       if(S.listen==='off')setVerdict('Click only. Switch on Microphone or Tap pad to see your timing.','idle','');
@@ -699,9 +713,10 @@ async function start(){
   }
   var fellBack=S.listen==='tap'&&!micOn&&!$('#micMsg').hidden;
   resetStats();
+  leakPeak=0;leakOffs=[];
   evs=[];slotIdx=0;nextTime=ctx.currentTime+0.15;
   running=true;timer=setInterval(scheduler,25);scheduler();
-  setVerdict(fellBack?'Microphone unavailable. The tap pad is on instead.':S.listen==='off'?'Click only. Count-in first.':'Count-in. Start strumming on the next bar.','idle','');
+  setVerdict(fellBack?'Microphone unavailable. The tap pad is on instead.':S.listen==='off'?'Click only. Count-in first.':'Count-in. Stay quiet, then strum on the next bar.','idle','');
   syncGo();
 }
 function stop(){
