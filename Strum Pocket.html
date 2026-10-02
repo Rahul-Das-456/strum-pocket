@@ -263,9 +263,11 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
     <div id="songEditor" hidden>
       <label class="field"><span>Chords and lyrics</span><textarea id="songText" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea></label>
       <p class="help">Paste a song here from a tab page, or type your own. Chords can sit above the words, or inline in brackets like [C]word. Add a pipe and a number after a chord to set its length in beats, like C|8. Lines such as Verse or Chorus become headings.</p>
+      <p class="note" id="songMsg" hidden></p>
       <div class="btnrow">
         <button class="btn" id="songDone" type="button">Done</button>
-        <button class="btn" id="songYellow" type="button">Load Yellow chord changes</button>
+        <button class="btn" id="songApply" type="button">Add Yellow chord changes to my lyrics</button>
+        <button class="btn" id="songYellow" type="button">Load Yellow chords only</button>
         <button class="btn" id="songClear" type="button">Clear</button>
       </div>
     </div>
@@ -367,7 +369,7 @@ textarea{width:100%;min-height:220px;resize:vertical;background:var(--surface);c
     </details>
   </section>
   <p class="note" id="install" hidden>To install: in Safari tap the Share button, then Add to Home Screen. On Android Chrome, open the menu and tap Install app.</p>
-  <p class="note" id="ver">Version 6: click-proof strum detection</p>
+  <p class="note" id="ver">Version 7: click-proof strum detection</p>
 </main>
 
 <script>
@@ -728,6 +730,42 @@ function parseSong(text){
   var cum=[0];units.forEach(function(u){cum.push(cum[cum.length-1]+u.beats);});
   return {lines:out,units:units,cum:cum,total:cum[cum.length-1]};
 }
+/* Yellow: the chord changes by lyric-line number (1 to 37). It holds chords only. Each entry is [chord, word index in the line, beats]. */
+var YP=[
+ '#Intro','=C|4 G|4 F|4 C|4','=C|4 G|4 F|4 C|4','','#Verse',
+ [1,['C',0,8]],[2,['G',0,8]],[3,['F',0,16]],[4],[5,['C',0,8]],[6,['G',0,8]],[7,['F',0,16]],[8],[9,['C',0,8],['G',5,8]],[10,['F',0,16]],[11],'=C|8','',
+ '#Chorus',
+ [12,['F',0,4],['Am',1,4],['G',5,8]],[13,['F',0,4],['Am',1,4],['G',3,8]],[14,['F',0,4],['Am',2,4],['G',6,8]],[15,['F',0,16]],'',
+ '#Interlude','=C|4 G|4 F|4 C|4','',
+ '#Verse 2',
+ [16,['C',0,8]],[17,['G',0,8]],[18,['F',0,16]],[19],[20,['C',0,8]],[21,['G',0,8]],[22,['F',0,16]],[23],'=C|8','',
+ '#Chorus',
+ [24,['F',0,4],['Am',2,4],['G',6,8]],[25,['F',0,4],['Am',1,4],['G',3,8]],[26,['F',0,4],['Am',2,4],['G',6,8]],[27,['F',0,16]],'',
+ '#Interlude','=C|4 G|4 F|4 C|4','',
+ '#Ending',
+ [28,['C',0,8]],[29,['G',0,8]],[30,['F',0,8]],[31,['C',0,8]],[32,['G',0,8]],[33,['F',0,8]],[34],'',
+ '#Outro',
+ [35,['C',0,8]],[36,['Gm',0,8]],[37,['F',0,8]]
+];
+function withChords(line,c){
+  var parts=line.split(/(\s+)/),words=[],before={};
+  parts.forEach(function(p,i){if(p&&!/^\s+$/.test(p)&&!/^\(.*\)$/.test(p))words.push(i);});
+  c.forEach(function(x){
+    var pi=x[1]===0?0:words[x[1]];if(pi===undefined)pi=0;
+    (before[pi]=before[pi]||[]).push('['+x[0]+'|'+x[2]+']');
+  });
+  return parts.map(function(p,i){return (before[i]?before[i].join(''):'')+p;}).join('');
+}
+function applyYellow(raw){
+  var ly=String(raw||'').split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l&&!SEC_RE.test(l)&&!isChordLine(l);});
+  if(ly.length!==37)return {error:'I found '+ly.length+' lyric lines, but this chord map needs exactly 37. Clear the box, paste only the lyrics (one line each, no headings or chords), and try again.'};
+  var out=[];
+  YP.forEach(function(it){
+    if(typeof it==='string'){out.push(it.charAt(0)==='#'?'['+it.slice(1)+']':it.charAt(0)==='='?it.slice(1):it);}
+    else{var line=ly[it[0]-1];out.push(withChords(line,it.slice(1)));}
+  });
+  return {text:out.join('\n')};
+}
 var song={lines:[],units:[],cum:[0],total:0},unitEls=[],marked=[],sheetEl=$('#sheet'),lastCard={};
 var SHAPES={
  'C':[0,0,0,3],'C#':[1,1,1,4],'D':[2,2,2,0],'D#':[0,3,3,1],'E':[4,4,4,2],'F':[2,0,1,0],'F#':[3,1,2,1],'G':[0,2,3,2],'G#':[5,3,4,3],'A':[2,1,0,0],'A#':[3,2,1,1],'B':[4,3,2,2],
@@ -817,7 +855,13 @@ var editBox=$('#songText'),editor=$('#songEditor'),editBtn=$('#songEdit');
 function setEditing(on){editor.hidden=!on;sheetEl.hidden=on;$('#chordNow').hidden=on||!song.units.length;editBtn.textContent=on?'Cancel':'Edit';if(on)editBox.value=S.songText||'';}
 editBtn.addEventListener('click',function(){setEditing(editor.hidden);});
 $('#songDone').addEventListener('click',function(){S.songText=editBox.value;save();buildSong();setEditing(false);});
-$('#songYellow').addEventListener('click',function(){editBox.value=YELLOW_SKELETON;});
+$('#songYellow').addEventListener('click',function(){editBox.value=YELLOW_SKELETON;$('#songMsg').hidden=true;});
+$('#songApply').addEventListener('click',function(){
+  var r=applyYellow(editBox.value),m=$('#songMsg');
+  m.hidden=false;
+  if(r.error){m.textContent=r.error;return;}
+  editBox.value=r.text;m.textContent='Chords added. Tap Done to see each lyric light up with its chord.';
+});
 $('#songClear').addEventListener('click',function(){editBox.value='';});
 seg('#segChordLen',function(){return S.chordBars;},function(v){S.chordBars=+v;buildSong();save();});
 
